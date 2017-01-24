@@ -1,0 +1,13 @@
+installation:
+sudo dnf install postgresql-server postgresql-contrib
+
+start:
+sudo systemctl start postgresql
+sudo -i -u postgres
+psql
+
+sudo -i -u postgres createuser --interactive -p
+ALTER USER "lora" WITH PASSWORD '****';
+DROP USER lora;
+
+createdb --owner=lora lect11 "First db for testing"
