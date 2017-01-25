@@ -1,13 +1,104 @@
 installation:
 sudo dnf install postgresql-server postgresql-contrib
 
+
 start:
 sudo systemctl start postgresql
 sudo -i -u postgres
 psql
 
+
+
 sudo -i -u postgres createuser --interactive -p
 ALTER USER "lora" WITH PASSWORD '****';
 DROP USER lora;
 
+
+
 createdb --owner=lora lect11 "First db for testing"
+psql --user=lora mydb
+psql -d myDb -U username -W
+or
+psql mydb
+
+
+
+SELECT version();
+SELECT current_date;
+SELECT now();
+
+
+
+\list or \l: list all databases
+\dt: list all tables in the current database
+SELECT * FROM pg_database; - list all databases
+SELECT * FROM information_schema.
+\dt information_schema.
+
+
+
+SELECT * FROM information_schema.tables
+SELECT * FROM information_schema.tables WHERE table_catalog = 'lect11';
+SELECT * FROM pg_user; - see all users
+
+
+CREATE TABLE user2 (
+id INT CONSTRAINT pk_user_id PRIMARY KEY,
+name VARCHAR(50) NOT NULL,
+add_info TEXT);
+
+INSERT INTO user2 VALUES (1, 'Sasha');
+
+__________operations with tables:_________________
+
+CREATE TABLE category (
+id SERIAL PRIMARY KEY,
+name VARCHAR(50) NOT NULL);
+
+INSERT INTO category (id, name) VALUES (1, 'cars');
+INSERT INTO category (id, name) VALUES (2, 'cars'), (3, 'cars'), (4, 'cars'), (5, 'cars');
+
+
+UPDATE category SET name = 'bikes' WHERE id = 2;
+UPDATE category SET name = 'buses' WHERE id = 3;
+UPDATE category SET name = 'trucks' WHERE id = 4;
+
+DELETE FROM category WHERE id = 5;
+
+ALTER TABLE category ADD UNIQUE (name);
+
+
+
+CREATE TABLE products (
+id          SERIAL PRIMARY KEY,
+name        VARCHAR(50) NOT NULL UNIQUE,
+cost        FLOAT NOT NULL DEFAULT 0,
+date_add    DATE DEFAULT CURRENT_DATE);
+
+ALTER TABLE products ADD COLUMN category_id INT NOT NULL;
+ADD CONSTRAINT product_category_id_fk FOREIGN KEY (category_id) REFERENCES category (id);
+
+INSERT INTO products (name, cost, category_id) VALUES ('Subaru', 300222,  2);
+INSERT INTO products (name, cost, category_id) VALUES ('Toyota', 100111,  1);
+INSERT INTO products (name, cost, category_id) VALUES ('Suzuki', 50222,  2);
+INSERT INTO products (name, cost, category_id) VALUES ('Kavasaki', 10000,  2);
+
+
+UPDATE products SET category_id = 1 WHERE id = 1;
+
+
+ALTER TABLE products ALTER COLUMN date_add TYPE TIMESTAMP WITH TIME ZONE;
+ALTER TABLE products ALTER COLUMN date_add SET DEFAULT NOW();
+
+SELECT * FROM products WHERE category_id IS NULL;
+
+
+
+_____________Requests of data:______________
+
+SELECT * FROM products JOIN category ON (category.id = products.category_id);   --the most simple joining
+
+SELECT category.id AS category_id,
+category.name AS category_name,
+products.name AS product_name
+FROM products JOIN category ON (category.id = products.category_id);
